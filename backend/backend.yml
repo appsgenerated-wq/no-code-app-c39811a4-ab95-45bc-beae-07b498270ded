@@ -1,0 +1,49 @@
+name: OrangeGrove
+description: An application to catalog and explore different varieties of oranges.
+
+entities:
+  User:
+    authenticable: true
+    properties:
+      - name
+      - { name: email, type: email }
+      - { name: role, type: choice, options: { values: [admin, user], default: user } }
+    policies:
+      create:
+        - access: admin
+      read:
+        - { access: restricted, allow: User, condition: self }
+      update:
+        - { access: restricted, allow: User, condition: self }
+      delete:
+        - access: admin
+      signup:
+        - access: public
+
+  OrangeVariety:
+    properties:
+      - { name: name, type: string }
+      - { name: description, type: text }
+      - { name: origin, type: string }
+      - { name: sweetness, type: choice, options: { values: ['1 (Tart)', '2 (Slightly Sweet)', '3 (Sweet)', '4 (Very Sweet)', '5 (Syrupy)'] } }
+      - { name: photo, type: image, options: { sizes: { thumbnail: { width: 400, height: 400, fit: cover } } } }
+    belongsTo:
+      - { name: owner, entity: User }
+    policies:
+      create:
+        - { access: restricted, allow: User }
+      read:
+        - access: public
+      update:
+        - { access: restricted, allow: User, condition: self }
+      delete:
+        - { access: restricted, allow: User, condition: self }
+
+
+# Health check endpoint for connection testing
+endpoints:
+  health:
+    path: /api/health
+    method: GET
+    policies: []
+    handler: healthCheck
